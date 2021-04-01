@@ -11,7 +11,7 @@ import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import api from '../utils/api';
 import Register from './Register';
 import Login from './Login';
-
+import ProtectedRoute from './ProtectedRoute';
 
 function App() {
     const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -21,6 +21,7 @@ function App() {
     const [selectedCard, setSelectedCard] = useState({ name: '', link: '' });
     const [currentUser, setCurrentUser] = useState('');
     const [cards, setCards] = useState([]);
+    const [loggedIn, setLoggedIn] = useState(false);
 
     useEffect(() => {
         api.getProfileInfo()
@@ -131,14 +132,10 @@ function App() {
             <CurrentUserContext.Provider value={currentUser}>
                 <Header />
                 <Switch>
-                    <Route exact path='/sign-up'>
-                    <Register />
-                    </Route>
-
-                    <Route exact path='/sign-in'>
-                    <Login />
-                    </Route>
-                    <Main
+                    <ProtectedRoute
+                    exact path= '/'
+                    loggedIn={loggedIn}
+                    component={<Main
                         onEditAvatar={handleEditAvatarClick}
                         onEditProfile={handleEditProfileClick}
                         onAddPlace={handleAddPlaceClick}
@@ -146,7 +143,18 @@ function App() {
                         cards={cards}
                         onCardLike={handleCardLike}
                         onCardDelete={handleCardDelete}
-                    />
+                    />}
+                    >
+
+                    </ProtectedRoute>
+                    <Route exact path='/sign-up'>
+                    <Register />
+                    </Route>
+
+                    <Route exact path='/sign-in'>
+                    <Login />
+                    </Route>
+                    
                     <ImagePopup
                         card={selectedCard}
                         onClose={closeAllPopups} />
