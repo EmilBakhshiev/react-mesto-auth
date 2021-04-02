@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import Header from './Header.js';
 import Main from './Main.js';
 import Footer from './Footer.js';
@@ -125,6 +125,9 @@ function App() {
             })
     }
 
+    function changeLogged() {
+        setLoggedIn(true)
+    }
 
     return (
 
@@ -133,9 +136,8 @@ function App() {
                 <Header />
                 <Switch>
                     <ProtectedRoute
-                    exact path= '/'
-                    loggedIn={loggedIn}
-                    component={<Main
+                        exact path='/'
+                        loggedIn={loggedIn}
                         onEditAvatar={handleEditAvatarClick}
                         onEditProfile={handleEditProfileClick}
                         onAddPlace={handleAddPlaceClick}
@@ -143,18 +145,16 @@ function App() {
                         cards={cards}
                         onCardLike={handleCardLike}
                         onCardDelete={handleCardDelete}
-                    />}
+                        component={Main}
                     >
-
                     </ProtectedRoute>
                     <Route exact path='/sign-up'>
-                    <Register />
+                        <Register />
                     </Route>
 
                     <Route exact path='/sign-in'>
-                    <Login />
+                        <Login authorized={changeLogged} />
                     </Route>
-                    
                     <ImagePopup
                         card={selectedCard}
                         onClose={closeAllPopups} />
