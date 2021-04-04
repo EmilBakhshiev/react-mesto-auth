@@ -27,9 +27,9 @@ function Login(props) {
             .then((data) => {
                 if (!data) throw new Error('Неверные имя пользователя или пароль')
                 if (data.token) {
-                    props.authorized()
-                    localStorage.setItem('jwt', data.jwt)
-                    history.push('/')
+                    props.authorized();
+                    localStorage.setItem('jwt', data.token);
+                    history.push('/');
                     return;
                 }
             })

@@ -24,4 +24,16 @@ export const authorize = (email, password) => {
         .then(checkResponse)
 };
 
+export const checkToken = (token) => {
+    return fetch(`${baseUrl}/users/me`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      }
+    })
+    .then(checkResponse)
+  }
+
 const checkResponse = (res) => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.statusText}`)

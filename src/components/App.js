@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, useHistory} from 'react-router-dom';
 import Header from './Header.js';
 import Main from './Main.js';
 import Footer from './Footer.js';
@@ -11,6 +11,7 @@ import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import api from '../utils/api';
 import Register from './Register';
 import Login from './Login';
+import * as auth from '../utils/auth';
 import ProtectedRoute from './ProtectedRoute';
 
 function App() {
@@ -22,6 +23,9 @@ function App() {
     const [currentUser, setCurrentUser] = useState('');
     const [cards, setCards] = useState([]);
     const [loggedIn, setLoggedIn] = useState(false);
+
+
+      const history = useHistory();
 
     useEffect(() => {
         api.getProfileInfo()
@@ -40,6 +44,10 @@ function App() {
                 console.error(err);
             })
     }, [])
+
+    useEffect(() => {
+        checkToken()
+      }, [])
 
 
     //LIKE CARD
@@ -125,10 +133,24 @@ function App() {
             })
     }
 
-    function changeLogged() {
+    function changeLogged(){
         setLoggedIn(true)
     }
 
+    function checkToken() {
+    if (localStorage.getItem('jwt')) {
+      let jwt = localStorage.getItem('jwt'); 
+      auth.checkToken(jwt).then((res)=>{
+          if(res){
+            
+            setLoggedIn(true);
+            history.push('/');
+            return res.data.email
+          }
+      })
+    }
+  }
+  
     return (
 
         <div className="page">
@@ -151,10 +173,10 @@ function App() {
                     <Route exact path='/sign-up'>
                         <Register />
                     </Route>
-
                     <Route exact path='/sign-in'>
                         <Login authorized={changeLogged} />
                     </Route>
+                    </Switch>
                     <ImagePopup
                         card={selectedCard}
                         onClose={closeAllPopups} />
@@ -171,7 +193,7 @@ function App() {
                         onClose={closeAllPopups}
                         onAddPlace={handleAddPlaceSubmit}
                     />
-                </Switch>
+                
                 {/*<PopupWithForm
             isOpen={isDeletePopup}
             onClose ={closeAllPopups}

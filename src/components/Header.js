@@ -1,7 +1,7 @@
 import React from 'react';
 import projectLogo from '../images/logo.svg';
 import { Route, Link } from 'react-router-dom';
-
+import * as auth from '../utils/auth';
 
 function Header() {
     return (
@@ -14,7 +14,7 @@ function Header() {
             <Link className='header__link' to='/sign-in'>Войти</Link>
             </Route>
             <Route exact path='/'>
-            <Link className='header__link' to='/sign-in'>Выйти</Link>
+            <p className='header__link'>email</p> <Link className='header__link' to='/sign-in'>Выйти</Link>
             </Route>
         </header>
     )

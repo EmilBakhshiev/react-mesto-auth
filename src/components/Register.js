@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useHistory  } from 'react';
+import React, { useState } from 'react';
 import AuthUser from './AuthUser';
 import * as auth from '../utils/auth';
 
