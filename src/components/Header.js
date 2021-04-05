@@ -1,9 +1,8 @@
 import React from 'react';
 import projectLogo from '../images/logo.svg';
 import { Route, Link } from 'react-router-dom';
-import * as auth from '../utils/auth';
 
-function Header() {
+function Header(props) {
     return (
         <header className='header' >
             <img src={projectLogo} alt='Логотип' className='header__logo' />
@@ -14,7 +13,7 @@ function Header() {
             <Link className='header__link' to='/sign-in'>Войти</Link>
             </Route>
             <Route exact path='/'>
-            <p className='header__link'>email</p> <Link className='header__link' to='/sign-in'>Выйти</Link>
+            <p className='header__text'>{props.email}<Link className='header__link' to='/sign-in' onClick={props.onSignOut}>Выйти</Link></p> 
             </Route>
         </header>
     )

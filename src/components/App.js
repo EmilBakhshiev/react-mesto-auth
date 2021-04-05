@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Switch, useHistory} from 'react-router-dom';
+import { Route, Switch, useHistory } from 'react-router-dom';
 import Header from './Header.js';
 import Main from './Main.js';
 import Footer from './Footer.js';
@@ -12,6 +12,7 @@ import api from '../utils/api';
 import Register from './Register';
 import Login from './Login';
 import * as auth from '../utils/auth';
+import InfoTooltip from './InfoTooltip';
 import ProtectedRoute from './ProtectedRoute';
 
 function App() {
@@ -23,9 +24,10 @@ function App() {
     const [currentUser, setCurrentUser] = useState('');
     const [cards, setCards] = useState([]);
     const [loggedIn, setLoggedIn] = useState(false);
+    const [email, setEmail] = useState('');
+    const [tooltipStatus, setTooltipStatus] = useState('');
 
-
-      const history = useHistory();
+    const history = useHistory();
 
     useEffect(() => {
         api.getProfileInfo()
@@ -46,8 +48,19 @@ function App() {
     }, [])
 
     useEffect(() => {
-        checkToken()
-      }, [])
+        let jwt = localStorage.getItem('jwt');
+        if (jwt) {
+            auth.checkToken(jwt).then((res) => {
+                if (res) {
+                    setLoggedIn(true);
+                    setEmail(res.data.email)
+                    history.push('/');
+                }
+            })
+                .catch(err => console.log(err));
+        }
+    }
+        , [history])
 
 
     //LIKE CARD
@@ -97,6 +110,7 @@ function App() {
         setIsAddPlacePopupOpen(false);
         //setIsDeletePopup(false);
         setSelectedCard({ name: '', link: '' });
+        setTooltipStatus('');
     }
     function handleCardClick(Card) {
         setSelectedCard(Card);
@@ -133,29 +147,46 @@ function App() {
             })
     }
 
-    function changeLogged(){
-        setLoggedIn(true)
+    //REGISTRATION
+    function onRegister(email, password) {
+        auth.register(email, password)
+            .then(res => {
+                if (res.data._id) {
+                    setTooltipStatus('success');
+                    history.push('/sign-in')
+                }
+            })
+            .catch(err => setTooltipStatus('fail'));
+
     }
 
-    function checkToken() {
-    if (localStorage.getItem('jwt')) {
-      let jwt = localStorage.getItem('jwt'); 
-      auth.checkToken(jwt).then((res)=>{
-          if(res){
-            
-            setLoggedIn(true);
-            history.push('/');
-            return res.data.email
-          }
-      })
+    //SIGN IN
+    function onLogin({ password, email }) {
+        auth.authorize({ password, email })
+            .then(data => {
+                if (data.token) {
+                    setEmail(email);
+                    localStorage.setItem('jwt', data.token);
+                    setLoggedIn(true);
+                    history.push('/');
+                }
+            })
+            .catch(err => setTooltipStatus('fail'));
     }
-  }
-  
+
+    //SIGN OUT
+
+    function onSignOut() {
+        localStorage.removeItem('jwt');
+        setLoggedIn(false);
+        history.push('/sign-in');
+    }
+
     return (
 
         <div className="page">
             <CurrentUserContext.Provider value={currentUser}>
-                <Header />
+                <Header email={email} onSignOut={onSignOut} />
                 <Switch>
                     <ProtectedRoute
                         exact path='/'
@@ -171,29 +202,13 @@ function App() {
                     >
                     </ProtectedRoute>
                     <Route exact path='/sign-up'>
-                        <Register />
+                        <Register onRegister={onRegister} />
                     </Route>
                     <Route exact path='/sign-in'>
-                        <Login authorized={changeLogged} />
+                        <Login onLogin={onLogin} />
                     </Route>
-                    </Switch>
-                    <ImagePopup
-                        card={selectedCard}
-                        onClose={closeAllPopups} />
-                    <EditProfilePopup
-                        isOpen={isEditProfilePopupOpen}
-                        onClose={closeAllPopups}
-                        onUpdateUser={handleUpdateUser} />
-                    <EditAvatarPopup
-                        isOpen={isEditAvatarPopupOpen}
-                        onClose={closeAllPopups}
-                        onUpdateAvatar={handleUpdateAvatar} />
-                    <AddPlacePopup
-                        isOpen={isAddPlacePopupOpen}
-                        onClose={closeAllPopups}
-                        onAddPlace={handleAddPlaceSubmit}
-                    />
-                
+
+                </Switch>
                 {/*<PopupWithForm
             isOpen={isDeletePopup}
             onClose ={closeAllPopups}
@@ -201,6 +216,25 @@ function App() {
             title='Вы уверены?'
             textButton='Да'/>*/}
                 <Footer />
+                <ImagePopup
+                    card={selectedCard}
+                    onClose={closeAllPopups} />
+                <EditProfilePopup
+                    isOpen={isEditProfilePopupOpen}
+                    onClose={closeAllPopups}
+                    onUpdateUser={handleUpdateUser} />
+                <EditAvatarPopup
+                    isOpen={isEditAvatarPopupOpen}
+                    onClose={closeAllPopups}
+                    onUpdateAvatar={handleUpdateAvatar} />
+                <AddPlacePopup
+                    isOpen={isAddPlacePopupOpen}
+                    onClose={closeAllPopups}
+                    onAddPlace={handleAddPlaceSubmit}
+                />
+                <InfoTooltip
+                    status={tooltipStatus}
+                    onClose={closeAllPopups} />
             </CurrentUserContext.Provider>
         </div>
     );

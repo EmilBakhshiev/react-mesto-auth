@@ -1,47 +1,34 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import AuthUser from './AuthUser';
-import * as auth from '../utils/auth';
+
 
 function Login(props) {
 
-    const [userData, setUserData] = useState({
-        email: '',
-        password: '',
-    })
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
-    const history = useHistory();
 
-    function handleChange(e) {
-        const { name, value } = e.target;
-        setUserData({
-            ...userData,
-            [name]: value
-        });
+    function handleInputEmail(e) {
+        setEmail(e.target.value);
+    }
+
+    function handleInputPassword(e) {
+        setPassword(e.target.value);
     }
 
     function handleSubmit(e) {
-        let { password, email } = userData;
-        e.preventDefault();
-        return auth.authorize(email, password)
-            .then((data) => {
-                if (!data) throw new Error('Неверные имя пользователя или пароль')
-                if (data.token) {
-                    props.authorized();
-                    localStorage.setItem('jwt', data.token);
-                    history.push('/');
-                    return;
-                }
-            })
+    e.preventDefault();
+      props.onLogin({password, email})
     }
+
 
     return (
         <AuthUser
             onSubmit={handleSubmit}
-            valueEmail={userData.email}
-            valuePassword={userData.password}
-            changeEmail={handleChange}
-            changePassword={handleChange}
+            valueEmail={email}
+            valuePassword={password}
+            changeEmail={handleInputEmail}
+            changePassword={handleInputPassword}
             name='sign-in'
             title='Вход'
             textButton='Войти'>

@@ -1,37 +1,33 @@
 import React, { useState } from 'react';
 import AuthUser from './AuthUser';
-import * as auth from '../utils/auth';
 
-function Register() {
-    const [userData, setUserData] = useState({
-        email:'',
-        password:'',
-    })
 
-function handleChange(e) {
-    const {name, value} = e.target;
-    setUserData({
-        ...userData,
-        [name]: value  
-    });
-}
+function Register(props) {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+ 
+    function handleInputEmail(e) {
+        setEmail(e.target.value);
+    }
+
+    function handleInputPassword(e) {
+        setPassword(e.target.value);
+    }
+
     function handleSubmit(e){
-        let {password, email } = userData;
+   
         e.preventDefault();
-        return  auth.register(email, password)
-          .then((res) => {
-            if (!res || res.statusCode === 400) throw new Error('Что-то пошло не так');
-            return res;
-          }).catch()
+        props.onRegister(email, password);
       }
 
     return (
         <AuthUser
         onSubmit={handleSubmit}
-        valueEmail={userData.email}
-        valuePassword={userData.password}
-        changeEmail={handleChange}
-        changePassword={handleChange}
+        valueEmail={email}
+        valuePassword={password}
+        changeEmail={handleInputEmail}
+        changePassword={handleInputPassword}
         name='sign-up'
         title='Регистрация'
         textButton='Зарегистрироваться'>
